@@ -1,0 +1,22 @@
+old.name	new.name
+Procolobus_badius	Piliocolobus_badius
+Cebuella_pygmaea	Callithrix_pygmaea
+Cercocebus_albigena	Lophocebus_albigena
+Cercopithecus_aethiops	Chlorocebus_aethiops
+Galagoides_demidoff	Galago_demidoff
+Hylobates_concolor	Nomascus_concolor
+Hylobates_leucogenys	Nomascus_leucogenys
+Hylobates_syndactylus	Symphalangus_syndactylus
+Hylobates_hoolock	Hoolock_hoolock
+Cercopithecus_talapoin	Miopithecus_talapoin
+Avahi_laniger	Lemur_laniger
+Galago_crassicaudatus	Otolemur_crassicaudatus
+Galago_demidovii	Galagoides_demidovii 
+Lemur_fulvus	Eulemur_fulvus
+Trachypithecus_johnii   Semnopithecus_johnii
+Callithrix_argentatus   Mico_melanurus
+Saguinus_nigricollis Leontocebus_nigricollis
+Pithecia_monacha	Pithecia_monachus
+Tarsius_spectrum	Tarsius_tarsier
+#Colobus_badius	Piliocolobus_badius # "the thorniest taxinomic problem among the african primates"
+#pt$gn_sp[!(pt$gn_sp %in% pri.phy$tip.label)]

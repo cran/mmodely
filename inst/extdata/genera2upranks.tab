@@ -1,0 +1,70 @@
+genus	tribe	subfamily	family	superfamily	parvorder	infraorder	suborder	usurps
+Allenopithecus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Cercocebus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Lophocebus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	Cercocebus
+Colobus		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Erythrocebus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Macaca		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Mandrillus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Miopithecus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	Cercopithecus
+Nasalis		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Papio		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Presbytis		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Procolobus		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Piliocolobus		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	Procolobus
+Pygathrix		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Rhinopithecus		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Semnopithecus		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	Trachypithecus
+Simias		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Theropithecus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Trachypithecus		Colobinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Cercopithecus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Chlorocebus		Cercopithecinae	Cercopithecidae	Cercopithecoidea	Catarrhini	Simiiformes	Haplorrhini	Cercopithecus
+Gorilla	Gorillini	Homininae	Hominidae	Hominoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Pan	Hominini	Homininae	Hominidae	Hominoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Pongo		Ponginae	Hominidae	Hominoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Hylobates			Hylobatidae	Hominoidea	Catarrhini	Simiiformes	Haplorrhini	FALSE
+Nomascus			Hylobatidae	Hominoidea	Catarrhini	Simiiformes	Haplorrhini	Hylobates
+Symphalangus			Hylobatidae	Hominoidea	Catarrhini	Simiiformes	Haplorrhini	Hylobates
+Hoolock			Hylobatidae	Hominoidea	Catarrhini	Simiiformes	Haplorrhini	Hylobates
+Aotus		Aotinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Alouatta		Alouattinae	Atelidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Ateles		Atelinae	Atelidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Brachyteles		Atelinae	Atelidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Lagothrix		Atelinae	Atelidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Callicebus		Callicebinae	Pitheciidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Callimico		Callitrichinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Callithrix		Callitrichinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	Cebuella
+Mico		Callitrichinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	Callithrix
+Cebuella		Callitrichinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Leontopithecus		Callitrichinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Saguinus		Callitrichinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Leontocebus		Callitrichinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	Saguinus
+Cebus		Cebinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Saimiri		Cebinae	Cebidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Cacajao		Pitheciinae	Pitheciidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Chiropotes		Pitheciinae	Pitheciidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Pithecia		Pitheciinae	Pitheciidae		Platyrrhini	Simiiformes	Haplorrhini	FALSE
+Tarsius			Tarsiidae			Tarsiiformes	Tarsiiformes	FALSE
+Allocebus			Cheirogaleidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Cheirogaleus			Cheirogaleidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Microcebus			Cheirogaleidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Mirza			Cheirogaleidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Phaner			Cheirogaleidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Daubentonia			Daubentoniidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Avahi			Indriidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Indri			Indriidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Propithecus			Indriidae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Eulemur		Hapalemurinae	Lemuridae	Lemuroidea		Lemuriformes	Strepsirhini	Lemur
+Hapalemur		Hapalemurinae	Lemuridae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Lemur		Lemurinae	Lemuridae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Varecia		Hapalemurinae	Lemuridae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Lepilemur			Lepilemuridae	Lemuroidea		Lemuriformes	Strepsirhini	FALSE
+Euoticus			Galagidae	Lorisoidea		Lorisiformes	Strepsirhini	FALSE
+Galago			Galagidae	Lorisoidea		Lorisiformes	Strepsirhini	FALSE
+Galagoides			Galagidae	Lorisoidea		Lorisiformes	Strepsirhini	Galago
+Otolemur			Galagidae	Lorisoidea		Lorisiformes	Strepsirhini	Galago
+Arctocebus		Perodicticinae	Lorisidae	Lorisoidea		Lorisiformes	Strepsirhini	FALSE
+Loris		Lorisinae	Lorisidae	Lorisoidea		Lorisiformes	Strepsirhini	FALSE
+Nycticebus		Lorisinae	Lorisidae	Lorisoidea		Lorisiformes	Strepsirhini	FALSE
+Perodicticus		Perodicticinae	Lorisidae	Lorisoidea		Lorisiformes	Strepsirhini	FALSE

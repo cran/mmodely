@@ -1,0 +1,19 @@
+exportPattern("^[^\\.]")
+
+importFrom(grDevices, rgb)
+importFrom(graphics, points, axis, abline, par, hist, mtext)
+importFrom(utils, read.delim, write.csv, combn)
+importFrom(stats, optimize, coef, pchisq, weighted.mean, AIC, coefficients, as.formula, formula, quantile, lm, hclust, predict, dist)
+importFrom(caroline, groupBy, nerge, m, nv, bestBy)
+
+importFrom(ape, as.phylo, drop.tip, ace, branching.times, is.binary.tree, multi2di, vcv.phylo)
+importFrom(caper, comparative.data, pgls, VCV.array, summary.pgls, logLik.pgls)
+
+#importFrom("phytools", "phylosig") # lift via v 0.0-8
+
+S3method(plot, confound.grid)
+S3method(plot, pgls.R2AIC)
+S3method(plot, pgls.iters)
+S3method(plot, transformed.phylo) 
+S3method(plot, xy.ab.p)
+

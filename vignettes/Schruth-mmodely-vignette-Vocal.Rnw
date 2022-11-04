@@ -1,0 +1,235 @@
+\documentclass{article}
+
+\usepackage[numbers]{natbib}
+\usepackage{graphics}
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage[margin=0.5in]{geometry}
+
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+
+%\VignetteIndexEntry{Primate vocal communication}
+
+\begin{document}
+\setkeys{Gin}{width=1.1\textwidth} 
+
+<<foo,include=FALSE,echo=FALSE>>=
+opt.old <- options(keep.source = TRUE, width = 60)
+foo <- packageDescription("mmodely")
+@
+
+\title{
+ Ecological factors influencing primate vocal communication:\\
+ a phylogenetic regression workflow for the \\
+ \Rpackage{mmodely} R-package (Version \Sexpr{foo$Version})\\
+}
+\author{
+  David M. Schruth \\
+\texttt{dschruth@anthropoidea.org}\\ \\
+}
+
+\maketitle
+
+\section{Introduction}
+\Sexpr{foo$Description}
+
+\section{Licensing}
+The \Rpackage{mmodely} package is licensed under the Apache License v2.0: it is therefore free to use and redistribute, 
+however, we, the copyright holders, wish to maintain primary control over any further development.   
+Please be sure to cite \Rpackage{mmodely} if you use the package in presentations or work leading to publication.
+
+\section{Installation}
+This package largely depends upon the \Rpackage{caper} package, but most functions do not require any particular library.
+It is recommended that you have \Rpackage{caper}, \Rpackage{ape}, and the \Rpackage{caroline} package installed as a minimum.
+
+<<downloadpackages>>=
+# wget https://cran.r-project.org/src/contrib/Archive/caroline/caroline_0.8.0.tar.gz
+# wget https://cran.r-project.org/src/contrib/Archive/caper/caper_0.5.tar.gz
+# wget https://cran.r-project.org/src/contrib/Archive/ape/ape_3.0-5.tar.gz
+# R CMD INSTALL caroline_0.8.0.tar.gz 
+# R CMD INSTALL caper_0.5.tar.gz 
+# R CMD INSTALL ape_3.0-5.tar.gz
+@
+
+Building the \Rpackage{mmodely} package from source requires that you have the proper dependency packages, \Rpackage{caroline}, installed from CRAN. 
+This can typically be accomplished via the following commands from within the R command line environment:
+
+\begin{verbatim}
+install.packages(c('caroline','ape','caper'))  
+\end{verbatim}
+
+After a successful installation the \Rpackage{mmodely} package can be loaded in the normal way:  by starting R and invoking the following \Rfunction{library} command:
+<<loadlib, results=hide>>=
+library(caper)
+library(mmodely)
+@
+
+\section{Reading in Data}
+Read in the tree and datasets then merge them together.
+<<read>>=
+data.path <- system.file("extdata","primate-example.data.csv", package="mmodely")
+data <- read.csv(data.path, row.names=1)
+data$gn_sp <- rownames(data)
+
+#multiply two vocalization metrics together to create "vocal complexity"
+data$VC <- apply(data[,c('syllables_max','rhythm_max')], 1, prod)  
+
+# merge data sets here if applicable
+
+tree.path <- system.file("extdata","primate-springer.2012.tre", package="mmodely")
+phyl <- ape::read.tree(tree.path)[[5]]
+#5. RAxML phylogram based on the 61199 bp concatenation of 69 nuclear and ten mitochondrial genes. 
+
+phyl <- trim.phylo(phylo=phyl, gs.vect=data$gn_sp) # prune unused nodes and branches
+
+comp <- comp.data(phylo=phyl, df=data)
+@
+Typically there will be some missing data (species) in certain sources that do appear in others. A merge of these will result in NA values for some cells. The more missing cells and merges there are, the more sub-datasets will be possible, due to case-wise deletion in the process of combinatorics underlying model iteration, averaging, and selection.  The above example has little if any missing data, but the examples below introduce some artificially.  
+\section{Basic Reporting}
+
+<<ti>>=
+model <- as.formula('VC ~ mass.Kg + group.size')
+fit <- caper::pgls(formula=model, data=comp)
+summary(fit)
+
+pgls.report(comp, f=model, anova=TRUE, QC.plot=TRUE)
+@
+
+\clearpage
+\section{Multivariate Combinatoric Iteration}
+The \Rpackage{mmodely} package's chief contribution is in enabling approaches that utilize multi-model iteration averaging. Using a smaller subset of variables can speed up the (slower) maximum likelihood computation step and still achieve the desired result of fixed tree transformation parameters.
+
+<<iter>>=
+pv0 <- c("mass.Kg","arboreal","home.range","monogamy") #"swing.pct"
+est.mods <- get.model.combos(predictor.vars=pv0, outcome.var='VC', min.q=2)
+
+ps <- get.phylo.stats(phylo=phyl, data=data, trait.clmn='VC'); 
+lambda <- ps$lambda$lambda ; print(lambda)
+PGLSi <- pgls.iter(models=est.mods, phylo=phyl, df=data, l=lambda, k='ML', d='ML')
+@
+
+\section{Tree Transformation Averaging and Re-iteration}
+After running PGLS on a test-subset of predictor-variable combinations using maximum likelihood, we can average the tree transformation parameters to obtain fixed values going forward. This approach can speed up computations for larger sets of modeling data and variable combinations. But in order to show off the model selection functionality we will only artificially sprinkle in some missing values to this small dataset for illustration purposes.
+<<modavg>>=
+tt.avgs <- apply(PGLSi$params, 2, mean, na.rm=TRUE) # tree transformation averages
+print(tt.avgs)
+
+pvs <- c("mass.Kg","group.size","arboreal","monogamy","leap.pct","swing.pct")
+all.mods <- get.model.combos(predictor.vars=pvs, outcome.var='VC', min.q=2)
+
+
+# randomly sprinkle in some missing values (to keep things interesting for model selection)
+missing.value.ct <- 1
+for(pv in pvs){ data[sample(x=1:nrow(data),size=missing.value.ct),pv] <- NA} 
+
+PGLSi <- pgls.iter(models=all.mods, phylo=phyl, df=data, l=lambda, k=tt.avgs['k'], d=tt.avgs['d'])
+@
+
+\clearpage
+\section{Model Averaging}
+Now we can estimate the predictor variable parameters by averaging over all possible fixed PGLS runs.
+
+<<modavg>>=
+calculate.weighted.means(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim)
+@
+
+\section{Model Selection}
+Plotting the coefficients of determination versus the AIC values allows selection of certain models for reporting.
+<<plotiter>>=
+plot.pgls.iters(PGLSi)
+@
+\begin{figure}
+\begin{center}
+<<label=plotiter,fig=TRUE,echo=FALSE, results=hide, width=5, height=5>>=
+<<plotiter>>
+@
+\end{center}
+\caption{All possible model combinations appear as individual points above. As there is a generally negative association between AIC and the coefficient of determination, the points tend to follow a negative sloping streak to the lower right. The "best" models appear in the lower right of each streak. Therefore, minimizing AIC tends to also maximize the coefficient of determination, but not necessarily. This four panel plot looks at correct and adjusted versions of each model assessment measure.}{}
+\label{plotiter:one}
+\end{figure}
+
+<<getcoef>>=
+sdevs.objs <- get.pgls.coefs(PGLSi$fits, est='t value')
+coefs.objs <- get.pgls.coefs(PGLSi$fits, est='Estimate')
+@
+
+<<lnrpt>>=
+report.vect <- sapply(1:length(PGLSi$fits), function(i) fit.1ln.rprt(PGLSi$fits[[i]], rtrn.line=FALSE, mn=i))
+@
+
+<<R2AIC>>==
+plot.pgls.R2AIC(PGLSi$optim)
+@
+\begin{figure}
+\begin{center}
+<<label=R2AIC,fig=TRUE,echo=FALSE, results=hide, width=6, height=5>>=
+<<R2AIC>>
+@
+\end{center}
+\caption{This is a one panel verison of the previous model selection plot. The numbered points in the lower right corner of each streak of possible models represent the best model within a sub-dataset. Since these AICc values should not strictly be compared, it is recommended that all "best" models selected from each sub-dataset should be inspected or reported somehow, such as in the form of the distro dots plot below.}{}
+\label{R2AIC:one}
+\end{figure}
+
+
+\section{Coefficient Plotting}
+<<coefdists>>=
+par.old <- par(mar=c(5,8,1,1),mfrow=c(2,1))
+modsel.distro.dots(sdevs.objs, R2x=7, xlab='t value')
+modsel.distro.dots(coefs.objs, R2x=7, xlab='Estimate')
+@
+\begin{figure}
+\begin{center}
+<<label=coefdists,fig=TRUE,echo=FALSE, results=hide, width=6, height=6>>=
+<<coefdists>>
+@
+\end{center}
+\caption{These 'distro dots' plots demonstrate how the (t-values of) coefficients from all "best" selected models can be simultaneously plot in order to verify consistency of estimates across the various (missing data driven) sub-datasets.}{}
+\label{coefdists:one}
+\end{figure}
+
+\clearpage
+
+\begin{thebibliography}{}
+  
+\bibitem{Revel, 2012}Revell, L.J. (2012) phytools: An R package for phylogenetic comparative biology (and other things). [CRAN]. Available at: \url{http://cran.r-project.org/package=phytools}.
+
+\bibitem{Blomberg, 2003}Blomberg, S.P., Garland Jr, T., and Ives, A.R. (2003) ‘Testing for phylogenetic signal in comparative data: behavioral traits are more labile’, Evolution, 57(4) pp. 717–745. Available at: \url{https://doi.org/10.1111/j.0014-3820.2003.tb00285.x}.
+
+\bibitem{Pagel, 1999}Pagel, M. (1999) ‘Inferring the historical patterns of biological evolution’, Nature, 401, pp. 877–884. Available at: \url{https://doi.org/10.1038/44766}.
+
+\bibitem{Grueber, 2011}Grueber, C.E., Nakagawa, .R.J., and Jamieson, I.G. (2011) ‘Multimodel inference in ecology and evolution: challenges and solutions’, Journal of Evolutoinary Biology, 24, pp. 699-711. Available at: \url{https://doi.org/10.1111/j.1420-9101.2010.02210.x}
+
+\bibitem{Stephens, 2007}Stephens, P.A., Buskirk, S.W., and del Rio, C.M. (2007) ‘Inference in ecology and evolution’, Trends in Ecology and Evolution, 22(4). Available at: \url{https://doi.org/10.1016/j.tree.2006.12.003}.
+
+\bibitem{Garamszegi, 2011}Garamszegi L.Z. (2011) ‘Information-theoretic approaches to statistical analysis in behavioral ecology: an introduction’, Behavioral Ecology and Sociobiology, 65, pp. 1–11. Available at: \url{https://doi.org/10.1007/s00265-010-1028-7}.
+
+\bibitem{Johnson, 2004}Johnson, J.B., Omland, K.S. (2004) ‘Model selection in ecology and evolution’, Trends in Ecology and Evolution, 19(2). Available at: \url{https://doi.org/10.1016/j.tree.2003.10.013}.
+
+\bibitem{Symonds, 2011}Symonds, M.R.E., and Moussalli, A. (2011) ‘A brief guide to model selection, multimodel inference and model averaging in behavioral ecology using Akaike's information criterion’, Behavioral Ecology and Sociobiology, 65, pp. 13–21. Available at: \url{https://doi.org/10.1007/s00265-010-1037-6}.
+
+\bibitem{Schruth, 2021a}Schruth, D.M. (2021a) A global variable-permutation based approach for estimating tree transformation parameters used in phylogenetically controlled multivariate regression. Available at: \url{http://doi.org/dx.doi.org/10.17504/}protocols.io.bzdhp236.
+
+\bibitem{Schruth, 2019a}Schruth, D.M. (2019a) Primate Locomotor Activity [The Center for Open Science]. Available at: \url{https://osf.io/cd68q/}.
+
+\bibitem{Schruth, 2019b}Schruth, D.M. (2019b) Structural acoustic features of human musicality scored on primate vocalizations [The Center for Open Science]. Available at: \url{https://doi.io/bvsfz/}.
+
+\bibitem{Schruth, 2021}Schruth, D.M., Templeton, C.N. and Holman, D.J. (2021) ‘On reappearance and complexity in musical calling’, PLoS ONE [Preprint]. Available at: \url{https://doi.org/10.1371/journal.pone.0218006}.
+
+\bibitem{Schruth, 2021d}Schruth, D.M. (2021d) Primates evolved spectrally complex calls in compensation for reduction in olfactory cognition. 43. Proceedings of the Annual Meeting of the Cognitive Science Society.
+Available at: \url{https://escholarship.org/uc/item/0jw446s9}.
+
+\bibitem{Rowe, 2017}Rowe, N. and Meyers, M. (2017) All the World’s Primates. Charlestown, RI: Pogonias Press.
+
+
+\end{thebibliography}
+
+<<bar,include=FALSE,echo=FALSE>>=
+options(opt.old)
+par(par.old)
+@
+
+\end{document}
