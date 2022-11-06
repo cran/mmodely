@@ -4,14 +4,12 @@
 #####################
 
 ## a publication quality version of plot.pgls.iters (a plot of just R2 vs AICc)
-plot.pgls.R2AIC <- function(x, bests=bestBy(x, by=c('n','q','qXn','rwGsm')[3], best=c('AICc','R2.adj')[1],inverse=c(FALSE,TRUE)[1]), model.as.title='', bcl=rgb(1,1,1,maxColorValue=3,alpha=1),...){
- oldpar <- par(no.readonly=TRUE); on.exit(par(oldpar))
+plot.pgls.R2AIC <- function(x, bests=bestBy(x, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1],inverse=c(FALSE,TRUE)[1]), model.as.title='', bcl=rgb(1,1,1,maxColorValue=3,alpha=1),...){
  lab.line <- par()$mgp[1]  #x is a PGLSi object
- par(xpd=TRUE)
  range.AICs <- x$AICc   < max(bests$AICc) 
  range.R2s  <- x$R2.adj > min(bests$R2.adj)#[range.R2s&range.AICs,]
  xlims <- c(min(x$R2.adj[is.finite(bests$R2.adj)]),max(x$R2.adj[is.finite(x$R2.adj)]))
- ylims <- c(min(x$AICc[is.finite(x$AICc)]),max(bests$AICc[is.finite(bests$AICc)]))
+ ylims <- c(min(x$AICc[is.finite(x$AICc)]),max(x$AICc[is.finite(x$AICc)]))
  with(bests,                                          plot(R2.adj, AICc, pch='', main=model.as.title, cex.main=.4, xlim=xlims, ylim=ylims, ylab='', xlab='', ...));   
  with(x,                                            points(R2.adj, AICc, pch=21, bg=bcl, col='white', bty='n'))
  with(bests,                                          text(R2.adj, AICc, model.no)) ## opt. prepend "a" "p" or "ap" to these numbers
@@ -26,7 +24,7 @@ plot.pgls.R2AIC <- function(x, bests=bestBy(x, by=c('n','q','qXn','rwGsm')[3], b
 ## SUBSET-SELECTED MODELS' COEFS ##
 ###################################
 
-modsel.distro.dots <- function(PC, jit.f=1, R2x=3, zeroline=TRUE, add=FALSE, pd=0, pvs=names(PC$coefs), pvlabs=NULL, xlim=range(unlist(PC$coefs)), ...){
+distro.dots.modsel <- function(PC, jit.f=1, R2x=3, zeroline=TRUE, add=FALSE, pd=0, pvs=names(PC$coefs), pvlabs=NULL, xlim=range(unlist(PC$coefs)), ...){
 
    q <- length(pvs)
    for(yi in 1:q){
@@ -52,8 +50,9 @@ modsel.distro.dots <- function(PC, jit.f=1, R2x=3, zeroline=TRUE, add=FALSE, pd=
 
 # split plot to investigate confounding between modeled variables (inspired by lattice's multi-panel lattice graph)
 plot.confound.grid <- function(x,Y='y',X='x',confounder='z',breaks=3, ...){
- oldpar <- par(no.readonly=TRUE); on.exit(par(oldpar))
+ oldpar <- par(no.readonly=TRUE);
  par(mfrow=c(1,breaks))
+ on.exit(par(oldpar))
  if(length(breaks)==1)
   breaks   <- c(quantile(  x[,confounder], probs = seq(0, 1, by = 1/breaks),na.rm=TRUE))
   ecs   <- split(x,cut(  x[,confounder], breaks=breaks));

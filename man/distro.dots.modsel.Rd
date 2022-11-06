@@ -1,13 +1,11 @@
-
-
-\name{modsel.distro.dots}
-\alias{modsel.distro.dots}
+\name{distro.dots.modsel}
+\alias{distro.dots.modsel}
 \title{Coeficients distribution plot of models selected from each subset}
 \description{
 Plot the raw distribution of points corresponding to the coefficients harvested from the best model of each subset of the dataset.
 }
 \usage{
-modsel.distro.dots(PC, jit.f=1, R2x=3, zeroline=TRUE, add=FALSE, pd=0, 
+distro.dots.modsel(PC, jit.f=1, R2x=3, zeroline=TRUE, add=FALSE, pd=0, 
                   pvs=names(PC$coefs), pvlabs=NULL, xlim=range(unlist(PC$coefs)),...)
 }
 \arguments{
@@ -39,10 +37,8 @@ mods <- get.model.combos(predictor.vars=pvs, outcome.var='OC', min.q=2)
 
 PGLSi <- pgls.iter(models=mods, phylo=phyl, df=data, k=1,l=1,d=1) 
 
-a.PGLS <- get.best.model(PGLSi, by=c('R2.adj','AICc')[1])
-
 coefs.objs <- get.pgls.coefs(PGLSi$fits, est='Estimate')
 
-modsel.distro.dots(coefs.objs)
+distro.dots.modsel(coefs.objs)
 
 }

@@ -1,18 +1,20 @@
-\name{get.best.model}
-\alias{get.best.model}
+\name{select.best.models}
+\alias{select.best.models}
 \title{Get the best model from list of PGLS model fits}
 \description{
 Get the outcome variable from the front of a model formula string. Used as part of 'get.mod.clmns' to be passed to 'comp.data'
 }
 \usage{
-get.best.model(PGLSi, by=c('AICc','R2.adj')[1])
+select.best.models(PGLSi, using=c('AICc','R2.adj','AIC','R2')[1],
+                             by=c('n','q','nXq','rwGsm')[4])
 }
 \arguments{
 \item{PGLSi}{a list of PGLS iter objects, each of which is list including: fitted PGLS model, a optim table, and a tree-transformation parameter table}
-\item{by}{metric to use in searching for the best model}
+\item{using}{performance metric to use in searching for the best model}
+\item{by}{unique identifier used to group sub-datasets for reporting (defaults to rwGsm) }
 }
 \value{
-a line corresponding to the "best" model from the PGLSi "optim" table
+a line corresponding to the "best" models from the PGLSi "optim" table
 }
 \examples{
 
@@ -30,6 +32,6 @@ mods <- get.model.combos(predictor.vars=pvs, outcome.var='OC', min.q=2)
 
 PGLSi <- pgls.iter(models=mods, phylo=phyl, df=data, k=1,l=1,d=1) 
 
-a.PGLS <- get.best.model(PGLSi, by=c('R2.adj','AICc')[1])
+a.PGLS <- select.best.models(PGLSi, by=c('R2.adj','AICc')[1])
 
 }

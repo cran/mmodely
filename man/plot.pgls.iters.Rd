@@ -6,7 +6,7 @@ A plot of AIC (and AICc) vs R^2 (and adjusted R^2) for all of the PGLS iteration
 }
 \usage{
 \method{plot}{pgls.iters}(x, 
-      bests=bestBy(x$optim, by=c('n','q','qXn','rwGsm')[3], best=c('AICc','R2.adj')[1], 
+      bests=bestBy(x$optim, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1], 
                          inverse=FALSE), ...)
 }
 \arguments{
@@ -38,6 +38,6 @@ for(pv in pvs){ data[sample(x=1:nrow(data),size=2),pv] <- NA}
 PGLSi <- pgls.iter(models=mods, phylo=phyl, df=data, k=1,l=1,d=1) 
 
 # find the lowest AIC within each q by n sized sub-dataset
-plot.pgls.iters(x=PGLSi,bests=caroline::bestBy(df=PGLSi$optim,by='qXn',best='AICc',inverse=FALSE))
+plot.pgls.iters(x=PGLSi)
 
 }

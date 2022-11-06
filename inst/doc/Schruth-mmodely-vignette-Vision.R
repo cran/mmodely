@@ -4,7 +4,7 @@
 ###################################################
 ### code chunk number 1: foo
 ###################################################
-opt.old <- options(keep.source = TRUE, width = 60)
+opt.old <- options(keep.source = TRUE, width = 95)
 foo <- packageDescription("mmodely")
 
 
@@ -64,86 +64,111 @@ ps <- get.phylo.stats(phylo=phyl, data=data, trait.clmn='OC');
 lambda <- ps$lambda$lambda ; print(lambda)
 PGLSi <- pgls.iter(models=est.mods, phylo=phyl, df=data, l=lambda, k='ML', d='ML')
 
+pgls.iter.stats(PGLSi) # check run, especially to see how few sub-datasets exist
+
 
 ###################################################
-### code chunk number 7: modavg
+### code chunk number 7: ttavg
 ###################################################
 tt.avgs <- apply(PGLSi$params, 2, mean, na.rm=TRUE) # tree transformation averages
 print(tt.avgs)
 
-pvs <- c("mass.Kg","group.size","infant.carry","arboreal","DPL.km","swing.pct","nocturnal")
+
+
+###################################################
+### code chunk number 8: fixiter
+###################################################
+
+pvs <- c("mass.Kg","group.size","infant.carry","arboreal","DPL.km","nocturnal")
 all.mods <- get.model.combos(predictor.vars=pvs, outcome.var='OC', min.q=2)
 
-data <- subset(data,!grepl(rownames(data),pattern='gorilla')) # remove an outlier
+data <- subset(data,!grepl(rownames(data),pattern='gorilla')) # remove an OC measurement outlier
 
-# randomly sprinkle in some missing values (to keep things interesting for model selection)
+# randomly sprinkle in some missing values (for more interesting for model selection)
 missing.value.ct <- 1
-for(pv in pvs){ data[sample(x=1:nrow(data),size=missing.value.ct),pv] <- NA} 
+for(pv in pv0){ data[sample(x=1:nrow(data),size=missing.value.ct),pv] <- NA} 
 
 PGLSi <- pgls.iter(models=all.mods, phylo=phyl, df=data, l=lambda, k=tt.avgs['k'], d=tt.avgs['d'])
 
 
 ###################################################
-### code chunk number 8: modavg
+### code chunk number 9: fixiterstats
 ###################################################
-calculate.weighted.means(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim)
+pgls.iter.stats(PGLSi) 
 
 
 ###################################################
-### code chunk number 9: plotiter
+### code chunk number 10: modavg
+###################################################
+w.means.pds <- average.fit.models(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim, by='rwGsm')
+#
+apply(w.means.pds, 2, mean, na.rm=T) #average of weighted means over all sub-datasets
+w.means.pds                                    # weighted means    per   sub-dataset
+
+
+###################################################
+### code chunk number 11: modsel
+###################################################
+select.best.models(PGLSi, using='AICc') 
+
+
+###################################################
+### code chunk number 12: plotiter
 ###################################################
 plot.pgls.iters(PGLSi)
 
 
 ###################################################
-### code chunk number 10: plotiter
+### code chunk number 13: plotiter
 ###################################################
 plot.pgls.iters(PGLSi)
 
 
 ###################################################
-### code chunk number 11: getcoef
+### code chunk number 14: getcoef
 ###################################################
 sdevs.objs <- get.pgls.coefs(PGLSi$fits, est='t value')
 coefs.objs <- get.pgls.coefs(PGLSi$fits, est='Estimate')
 
 
 ###################################################
-### code chunk number 12: lnrpt
+### code chunk number 15: lnrpt
 ###################################################
 report.vect <- sapply(1:length(PGLSi$fits), function(i) fit.1ln.rprt(PGLSi$fits[[i]], rtrn.line=FALSE, mn=i))
 
 
 ###################################################
-### code chunk number 13: R2AIC
+### code chunk number 16: R2AIC
 ###################################################
+par(mar=c(5,5,3,3))
 plot.pgls.R2AIC(PGLSi$optim)
 
 
 ###################################################
-### code chunk number 14: R2AIC
+### code chunk number 17: R2AIC
 ###################################################
+par(mar=c(5,5,3,3))
 plot.pgls.R2AIC(PGLSi$optim)
 
 
 ###################################################
-### code chunk number 15: coefdists
+### code chunk number 18: coefdists
 ###################################################
-par.old <- par(mar=c(5,8,1,1),mfrow=c(2,1))
-modsel.distro.dots(sdevs.objs, R2x=7, xlab='t value')
-modsel.distro.dots(coefs.objs, R2x=7, xlab='Estimate')
+par.old <- par(mar=c(5,8,1,4),mfrow=c(2,1))
+distro.dots.modsel(sdevs.objs, R2x=7, xlab='t value')
+distro.dots.modsel(coefs.objs, R2x=7, xlab='Estimate')
 
 
 ###################################################
-### code chunk number 16: coefdists
+### code chunk number 19: coefdists
 ###################################################
-par.old <- par(mar=c(5,8,1,1),mfrow=c(2,1))
-modsel.distro.dots(sdevs.objs, R2x=7, xlab='t value')
-modsel.distro.dots(coefs.objs, R2x=7, xlab='Estimate')
+par.old <- par(mar=c(5,8,1,4),mfrow=c(2,1))
+distro.dots.modsel(sdevs.objs, R2x=7, xlab='t value')
+distro.dots.modsel(coefs.objs, R2x=7, xlab='Estimate')
 
 
 ###################################################
-### code chunk number 17: bar
+### code chunk number 20: bar
 ###################################################
 options(opt.old)
 par(par.old)

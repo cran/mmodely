@@ -30,8 +30,6 @@ mods <- get.model.combos(predictor.vars=pvs, outcome.var='OC', min.q=2)
 
 PGLSi <- pgls.iter(models=mods, phylo=phyl, df=data, k=1,l=1,d=1) 
 
-a.PGLS <- get.best.model(PGLSi, by=c('R2.adj','AICc')[1])
-
 coefs.objs <- get.pgls.coefs(PGLSi$fits, est='Estimate')
 
 }

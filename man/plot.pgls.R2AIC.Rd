@@ -6,7 +6,7 @@ Plots a single panel of R^2 versus AIC, using versions of your choosing.
 }
 \usage{
 \method{plot}{pgls.R2AIC}(x, 
-            bests=bestBy(x, by=c('n','q','qXn','rwGsm')[3], best=c('AICc','R2.adj')[1], 
+            bests=bestBy(x, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1], 
 inverse=c(FALSE,TRUE)[1]), model.as.title='', bcl=rgb(1,1,1,maxColorValue=3,alpha=1),...)
 }
 \arguments{
@@ -36,7 +36,6 @@ for(pv in pvs){ data[sample(x=1:nrow(data),size=2),pv] <- NA}
 
 PGLSi <- pgls.iter(models=mods, phylo=phyl, df=data, k=1,l=1,d=1) 
 
-plot.pgls.R2AIC(PGLSi$optim,   # find the lowest AIC within each q by n sized sub-dataset
-     bests=caroline::bestBy(df=PGLSi$optim, by='qXn', best='AICc',inverse=FALSE), model.as.title='')
+plot.pgls.R2AIC(PGLSi$optim)   # find the lowest AIC within each q by n sized sub-dataset
 
 }

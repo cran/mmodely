@@ -12,7 +12,7 @@ pgls.iter <- function(models, phylo, df, gs.clmn='gn_sp', b=list(lambda=c(.2,1),
  rownames(params)<-models; #colnames(params) <- c('l','k','d');
  for(model in models){
    cat(paste(which(models %in% model), model,'\n'))#print(, quote=FALSE)
-   cd <-  comp.data(      phylo=phylo,  df=df[,c(get.mod.clmns(model),gs.clmn)], gs.clmn) 
+   cd <-  comp.data(      phylo=phylo,  df=df[,c(get.mod.clmns(model),gs.clmn)], gs.clmn)#gn_sp   # use drop.na.data here?
    #cd <- comparative.data(phy  =phylo,data=df[,get.mod.clmns(model)], names.col=gs.clmn, vcv=vcv.dim>0, vcv.dim=vcv.d) 
    fits[[model]] <- pgls(formula=formula(model), lambda=l, kappa=k, delta=d, data=cd, bounds=b)  
    params[model,] <- fits[[model]]$param[names(b)]
@@ -23,10 +23,11 @@ pgls.iter <- function(models, phylo, df, gs.clmn='gn_sp', b=list(lambda=c(.2,1),
    #model.lengths[model] <- sapply(strsplit(model,split='\\+'),length)
  }
 
- optim.1 <- data.frame(n=sapply(fits,function(i) i$n),
+ optim.1 <- data.frame(n=sapply(fits,function(i) i$n), n=sapply(fits,function(i) i$n),     ## DOES $n include rows with MISSING DATA?
                        q=sapply(models, function(m) count.mod.vars(formula(m)))) #count the predictor variables
  optim.1$qXn <- apply(optim.1[,c('q','n')], 1, paste, collapse='X')# for all the unique combinations of n and q
- optim.1$rwGsm <-sapply(models, function(m) sum(as.numeric(sapply(strsplit(paste(rownames(fits[[m]]$data$data[,fits[[m]]$varNames]),collapse='.'),'')[[1]], charToRaw))))# unique # for each G_sXn combo
+ optim.1$rwGsm <-sapply(models, function(m) sum(as.numeric(sapply(strsplit(paste(rownames( ##  drop.na.data removes rows w/ MISSING DATA
+                      drop.na.data(fits[[m]]$data$data[,fits[[m]]$varNames])),collapse='.'),'')[[1]], charToRaw))))# unique # for each G_sXn combo
 
  optim.2 <- data.frame(model.no=1:length(models), R2=R2s,R2.adj=R2s.adj,AIC=AICs,AICc=AICcs, stringsAsFactors=FALSE); 
  optim.2$AICw <- weight.AIC(AIC=optim.2$AICc);
@@ -41,7 +42,7 @@ pgls.iter <- function(models, phylo, df, gs.clmn='gn_sp', b=list(lambda=c(.2,1),
 }
 
 pgls.iter.stats <- function(PGLSi, verbose=TRUE, plots=FALSE){
- oldpar <- par(no.readonly=TRUE); on.exit(par(oldpar))
+ oldpar <- par(no.readonly=TRUE); 
                             # PGLSi object switched to "x" in plotting functions
  optim <- PGLSi$optim
  dataset.dims <-  apply(optim[,c('q','n','qXn','rwGsm')], 2, function(c){length(unique(c))} )
@@ -60,7 +61,7 @@ pgls.iter.stats <- function(PGLSi, verbose=TRUE, plots=FALSE){
   print(summary(optim.quants) )
  }
  if(plots){
-  par(mfrow=c(3,3))
+  par(mfrow=c(3,3));on.exit(par(oldpar))
   sapply(names(optim.quants), function(oq) hist(optim.quants[,oq], main=oq))
  }
 }
@@ -68,19 +69,25 @@ pgls.iter.stats <- function(PGLSi, verbose=TRUE, plots=FALSE){
 ### MODEL AVERAGING ###
 #######################
 
-
-calculate.weighted.means <- function(vars, fits, optims, weight='AICw', decimal.places=5){ #weighted means of coefficients based on AIC
+average.fit.models <- function(vars, fits, optims, weight='AICw', by=c('n','q','nXq','rwGsm')[4], round.digits=5){
   q <- length(vars)
   f <- length(fits)
   coef.mtrx <- matrix(data=rep(NA,q*f), ncol=q,nrow=f);
   rownames(coef.mtrx)<- names(fits)
   colnames(coef.mtrx)<-vars
-  for(vp in vars){ for(fit.nm in names(fits)){ 
-    coef.this <- coef(fits[[fit.nm]])
-    names(coef.this) <- sapply(names(coef.this),function(cf) sub(x=cf,'TRUE',''))
+  for(fit.nm in names(fits)){ 
+   coef.this <- coef(fits[[fit.nm]])
+   names(coef.this) <- sapply(names(coef.this),function(cf) sub(x=cf,'TRUE',''))
+   for(vp in vars){ 
     coef.mtrx[fit.nm,vp] <- coef.this[vp]
-  }}
-  round(sapply(vars, function(vi) weighted.mean(x=coef.mtrx[,vi],w=optims[,weight],na.rm=TRUE)),decimal.places)
+   }
+  }
+  # weighted means of coefficients based on AIC
+  coef.opt <- cbind.data.frame(list(coef.mtrx,optims))
+  coef.opts <- split(x=coef.opt, f=as.factor(coef.opt[,by]))
+           # old version -> #round(sapply(vars, function(vi) weighted.mean(x=coef.mtrx[,vi],w=optims[,weight],na.rm=TRUE)),round.dec.pl) 
+  ret <- sapply(coef.opts, function(co) round(sapply(vars, function(vi) weighted.mean(x=co[,vi],w=co[,weight],na.rm=TRUE)),round.digits))
+  return(t(ret))
 }
 
 ######################
@@ -88,16 +95,20 @@ calculate.weighted.means <- function(vars, fits, optims, weight='AICw', decimal.
 ######################
 
 
-get.best.model <- function(PGLSi, by=c('AICc','R2.adj')[1]){ 
-     if(by=='R2.adj') ret <- with(PGLSi, optim[which.max(optim$R2.adj),])
-     if(by=='AICc')   ret <-  with(PGLSi, optim[which.min(optim$AICc),])
+select.best.models <- function(PGLSi, using=c('AICc','R2.adj','AIC','R2')[1], by=c('n','q','nXq','rwGsm')[4]){ 
+     if(grepl(x=using,'AIC')){   
+        ret <- bestBy(df=PGLSi$optim, by=by, best='AICc')
+     }else{
+        ret <- bestBy(df=PGLSi$optim, by=by, best='R2.adj', inverse=T)
+     }
  return(ret)
 }
 
 
-plot.pgls.iters <- function(x, bests=bestBy(x$optim, by=c('n','q','qXn','rwGsm')[3], best=c('AICc','R2.adj')[1],inverse=FALSE), ...){
- oldpar <- par(no.readonly=TRUE);on.exit(par(oldpar))
- par(mfrow=c(2,2),mar=c(3,3,1,1),mgp=c(1.7,0.4,0))       #x is a PGLSi object                             
+plot.pgls.iters <- function(x, bests=bestBy(x$optim, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1],inverse=FALSE), ...){
+ oldpar <- par(no.readonly=TRUE);
+ par(mfrow=c(2,2),mar=c(3,3,1.5,1.5),mgp=c(1.7,0.4,0))       #x is a PGLSi object            
+ on.exit(par(oldpar))                 
  with(x$optim, plot(R2, AIC))
  with(bests, plot(R2,AIC,pch=''));with(bests, text(R2,AIC,model.no))
  with(x$optim, plot(R2.adj, AICc))
