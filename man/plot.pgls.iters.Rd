@@ -6,7 +6,7 @@ A plot of AIC (and AICc) vs R^2 (and adjusted R^2) for all of the PGLS iteration
 }
 \usage{
 \method{plot}{pgls.iters}(x, 
-      bests=bestBy(x$optim, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1], 
+      bests=bestBy(x$optim, by=c('n','q','qXn','rwGsm')[1], best=c('AICc','R2.adj')[1], 
                          inverse=FALSE), ...)
 }
 \arguments{

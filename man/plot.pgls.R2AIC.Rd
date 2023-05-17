@@ -7,13 +7,15 @@ Plots a single panel of R^2 versus AIC, using versions of your choosing.
 \usage{
 \method{plot}{pgls.R2AIC}(x, 
             bests=bestBy(x, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1], 
-inverse=c(FALSE,TRUE)[1]), model.as.title='', bcl=rgb(1,1,1,maxColorValue=3,alpha=1),...)
+            inverse=c(FALSE,TRUE)[1]),bcl=rgb(1,1,1,maxColorValue=3,alpha=1), nx=2, 
+            model.as.title='', ...)
 }
 \arguments{
 \item{x}{a PGLSi[teration]$optim [optimization] table }
 \item{bests}{a list of the best PGLS models grouped by variable count and sorted by some metric (e.g. adjusted R2)}
-\item{model.as.title}{uses model.1ln.report to create a short character string of the "best" model results as a title}
 \item{bcl}{background color of plot point}
+\item{nx}{point size expansion factor to multiply against sample size ratio (this model to max of all models)}
+\item{model.as.title}{uses model.1ln.report to create a short character string of the "best" model results as a title}
 \item{...}{other parameters passed to 'plot'}
 }
 \value{

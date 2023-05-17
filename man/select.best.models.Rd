@@ -6,12 +6,12 @@ Get the outcome variable from the front of a model formula string. Used as part 
 }
 \usage{
 select.best.models(PGLSi, using=c('AICc','R2.adj','AIC','R2')[1],
-                             by=c('n','q','nXq','rwGsm')[4])
+                             by=c('n','q','nXq','rwGsm')[1])
 }
 \arguments{
 \item{PGLSi}{a list of PGLS iter objects, each of which is list including: fitted PGLS model, a optim table, and a tree-transformation parameter table}
 \item{using}{performance metric to use in searching for the best model}
-\item{by}{unique identifier used to group sub-datasets for reporting (defaults to rwGsm) }
+\item{by}{unique identifier used to group sub-datasets for reporting (defaults to n) }
 }
 \value{
 a line corresponding to the "best" models from the PGLSi "optim" table

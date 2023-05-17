@@ -4,14 +4,15 @@
 #####################
 
 ## a publication quality version of plot.pgls.iters (a plot of just R2 vs AICc)
-plot.pgls.R2AIC <- function(x, bests=bestBy(x, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1],inverse=c(FALSE,TRUE)[1]), model.as.title='', bcl=rgb(1,1,1,maxColorValue=3,alpha=1),...){
+plot.pgls.R2AIC <- function(x, bests=bestBy(x, by=c('n','q','qXn','rwGsm')[4], best=c('AICc','R2.adj')[1],inverse=c(FALSE,TRUE)[1]),  bcl=rgb(1,1,1,maxColorValue=3,alpha=1), nx=2,model.as.title='',...){
  lab.line <- par()$mgp[1]  #x is a PGLSi object
- range.AICs <- x$AICc   < max(bests$AICc) 
- range.R2s  <- x$R2.adj > min(bests$R2.adj)#[range.R2s&range.AICs,]
+ #range.AICs <- x$AICc   < max(bests$AICc) 
+ #range.R2s  <- x$R2.adj > min(bests$R2.adj)#[range.R2s&range.AICs,]
+ cex.n <- x$n/max(x$n) * nx;   
  xlims <- c(min(x$R2.adj[is.finite(bests$R2.adj)]),max(x$R2.adj[is.finite(x$R2.adj)]))
  ylims <- c(min(x$AICc[is.finite(x$AICc)]),max(x$AICc[is.finite(x$AICc)]))
  with(bests,                                          plot(R2.adj, AICc, pch='', main=model.as.title, cex.main=.4, xlim=xlims, ylim=ylims, ylab='', xlab='', ...));   
- with(x,                                            points(R2.adj, AICc, pch=21, bg=bcl, col='white', bty='n'))
+ with(x,                                            points(R2.adj, AICc, pch=21, bg=bcl, col='white', bty='n', cex=cex.n))
  with(bests,                                          text(R2.adj, AICc, model.no)) ## opt. prepend "a" "p" or "ap" to these numbers
  par(xpd=FALSE)
  abline(v=0, lty=2)
@@ -24,18 +25,20 @@ plot.pgls.R2AIC <- function(x, bests=bestBy(x, by=c('n','q','qXn','rwGsm')[4], b
 ## SUBSET-SELECTED MODELS' COEFS ##
 ###################################
 
-distro.dots.modsel <- function(PC, jit.f=1, R2x=3, zeroline=TRUE, add=FALSE, pd=0, pvs=names(PC$coefs), pvlabs=NULL, xlim=range(unlist(PC$coefs)), ...){
-
+sparge.modsel <- function(PC, jit.f=1, R2x=3, nx=2, n.max=max(unlist(PC$n)), zeroline=TRUE, add=FALSE, pd=0, pvs=names(PC$coefs), pvlabs=NULL, xlim=range(unlist(PC$coefs)), MA=NULL, ap=8, ac=1, ax=nx, ...){
+   
    q <- length(pvs)
    for(yi in 1:q){
     xs <- PC$coefs[rev(pvs)][[yi]]
-    ys <- - jitter(rep(yi,length(xs)), factor=jit.f) + pd
-    cex <- PC$R2a[rev(pvs)][[yi]] * R2x;   #if(any(PC$R2a[rev(pvs)][[yi]]>.95)) # add over-fitting warning?
+    ys <- - jitter(rep(yi,length(xs)), factor=jit.f, amount=1/10) + pd
+    lwd <- PC$R2a[rev(pvs)][[yi]] * R2x;   
+    cex <- PC$n[rev(pvs)][[yi]]/n.max * nx;   
     if(yi==1 & !add){
-     plot(xs, ys, ylim=-c(1,q), ylab='',  cex=cex, xlim=xlim, yaxt='n', ...) 
+     plot(xs, ys, ylim=-c(1,q), ylab='', cex=cex, xlim=xlim, yaxt='n', pch=21, lwd=lwd, ...) 
     }else{
-     points(xs, ys,  cex=cex, ...)
+     points(xs, ys, cex=cex, lwd=lwd, pch=21, ...)
     }
+    if(!is.null(MA)){points(x=MA[rev(pvs)[yi]], y=-yi+pd, pch=ap, cex=ax, col=ac)} # add model averages  #FIX HARD CODING OF bg
    }
    if(!is.null(pvlabs)) pvlabs <- rev(pvlabs) else pvlabs <- rev(pvs)
    axis(2, at=-1:-q, labels=pvlabs, las=1)

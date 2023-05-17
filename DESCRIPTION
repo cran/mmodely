@@ -1,6 +1,6 @@
 Package: mmodely
-Version: 0.2.2
-Date: 2022-11-02
+Version: 0.2.5
+Date: 2023-05-05
 Title: Modeling Multivariate Origins Determinants - Evolutionary
         Lineages in Ecology
 Author: David M Schruth
@@ -16,7 +16,9 @@ Description:
  Functions additionally support information theoretic approaches
  (Grueber, 2011 <doi:10.1111/j.1420-9101.2010.02210.x>;
  Garamszegi, 2011 <doi:10.1007/s00265-010-1028-7>)
- such as model averaging and selection of phylogenetic models.
+ such as  model averaging and selection of phylogenetic models.
+ Accessory functions are also implemented for coef standardization (Cade 2015), 
+ selection uncertainty, and variable importance (Burnham & Anderson 2000).
  There are other numerous functions for visualizing confounded variables,
  plotting phylogenetic trees, as well as reporting and exporting modeling results.
  Lastly, as challenges to ecology are inherently multifarious, and therefore often
@@ -25,6 +27,6 @@ Description:
 License: Apache License
 LazyLoad: yes
 NeedsCompilation: no
-Packaged: 2022-11-05 18:47:26 UTC; david
+Packaged: 2023-05-17 00:40:29 UTC; mint
 Repository: CRAN
-Date/Publication: 2022-11-06 05:10:02 UTC
+Date/Publication: 2023-05-17 07:10:02 UTC

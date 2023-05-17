@@ -6,7 +6,7 @@ This function takes phylogenetic tree and a list of (all possible) combinations 
 }
 \usage{
 pgls.iter(models, phylo, df,  gs.clmn='gn_sp', 
-          b=list(lambda=c(.2,1),kappa=c(.2,2.7),delta=c(.2,2.7)),l='ML', k='ML',d='ML') 
+          b=list(lambda=c(.2,1),kappa=c(.2,2.8),delta=c(.2,2.8)),l='ML', k='ML',d='ML') 
 }
 \arguments{
 \item{models}{a vector of all possible model formulas (as character strings)}

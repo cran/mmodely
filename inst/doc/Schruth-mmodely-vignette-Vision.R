@@ -1,5 +1,5 @@
 ### R code from vignette source 'Schruth-mmodely-vignette-Vision.Rnw'
-### Encoding: UTF-8
+### Encoding: NA
 
 ###################################################
 ### code chunk number 1: foo
@@ -74,7 +74,6 @@ tt.avgs <- apply(PGLSi$params, 2, mean, na.rm=TRUE) # tree transformation averag
 print(tt.avgs)
 
 
-
 ###################################################
 ### code chunk number 8: fixiter
 ###################################################
@@ -100,22 +99,25 @@ pgls.iter.stats(PGLSi)
 ###################################################
 ### code chunk number 10: modavg
 ###################################################
-w.means.pds <- average.fit.models(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim, by='rwGsm')
+w.means.pds <- average.fit.models(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim, by='rwGsm', standardize=TRUE)
 #
 apply(w.means.pds, 2, mean, na.rm=T) #average of weighted means over all sub-datasets
 w.means.pds                                    # weighted means    per   sub-dataset
 
 
 ###################################################
-### code chunk number 11: modsel
+### code chunk number 11: varimport
+###################################################
+w.import.pds <- variable.importance(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim, by='rwGsm')
+#
+apply(w.import.pds, 2, mean, na.rm=T) #average of weighted means over all sub-datasets
+w.import.pds                                    # weighted means    per   sub-dataset
+
+
+###################################################
+### code chunk number 12: modsel
 ###################################################
 select.best.models(PGLSi, using='AICc') 
-
-
-###################################################
-### code chunk number 12: plotiter
-###################################################
-plot.pgls.iters(PGLSi)
 
 
 ###################################################
@@ -125,23 +127,22 @@ plot.pgls.iters(PGLSi)
 
 
 ###################################################
-### code chunk number 14: getcoef
+### code chunk number 14: plotiter
+###################################################
+plot.pgls.iters(PGLSi)
+
+
+###################################################
+### code chunk number 15: getcoef
 ###################################################
 sdevs.objs <- get.pgls.coefs(PGLSi$fits, est='t value')
 coefs.objs <- get.pgls.coefs(PGLSi$fits, est='Estimate')
 
 
 ###################################################
-### code chunk number 15: lnrpt
+### code chunk number 16: lnrpt
 ###################################################
 report.vect <- sapply(1:length(PGLSi$fits), function(i) fit.1ln.rprt(PGLSi$fits[[i]], rtrn.line=FALSE, mn=i))
-
-
-###################################################
-### code chunk number 16: R2AIC
-###################################################
-par(mar=c(5,5,3,3))
-plot.pgls.R2AIC(PGLSi$optim)
 
 
 ###################################################
@@ -152,23 +153,30 @@ plot.pgls.R2AIC(PGLSi$optim)
 
 
 ###################################################
-### code chunk number 18: coefdists
+### code chunk number 18: R2AIC
 ###################################################
-par.old <- par(mar=c(5,8,1,4),mfrow=c(2,1))
-distro.dots.modsel(sdevs.objs, R2x=7, xlab='t value')
-distro.dots.modsel(coefs.objs, R2x=7, xlab='Estimate')
+par(mar=c(5,5,3,3))
+plot.pgls.R2AIC(PGLSi$optim)
 
 
 ###################################################
 ### code chunk number 19: coefdists
 ###################################################
 par.old <- par(mar=c(5,8,1,4),mfrow=c(2,1))
-distro.dots.modsel(sdevs.objs, R2x=7, xlab='t value')
-distro.dots.modsel(coefs.objs, R2x=7, xlab='Estimate')
+sparge.modsel(sdevs.objs, R2x=7, xlab='t value')
+sparge.modsel(coefs.objs, R2x=7, xlab='Estimate')
 
 
 ###################################################
-### code chunk number 20: bar
+### code chunk number 20: coefdists
+###################################################
+par.old <- par(mar=c(5,8,1,4),mfrow=c(2,1))
+sparge.modsel(sdevs.objs, R2x=7, xlab='t value')
+sparge.modsel(coefs.objs, R2x=7, xlab='Estimate')
+
+
+###################################################
+### code chunk number 21: bar
 ###################################################
 options(opt.old)
 par(par.old)

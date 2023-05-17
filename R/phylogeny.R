@@ -32,7 +32,7 @@ plot.transformed.phylo <- function(x, delta=1,kappa=1,...){
 
 
 trim.phylo <- function(phylo, gs.vect){ 
-  if(!is.binary.tree(phylo)){
+  if(!ape::is.binary.tree(phylo)){
    warning('not a fully dicotomous tree, running the recommended "multi2di" to fix')
    phylo <- multi2di(phylo)
   } 

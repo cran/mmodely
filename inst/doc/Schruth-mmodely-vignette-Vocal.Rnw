@@ -116,12 +116,6 @@ lambda <- ps$lambda$lambda ; print(lambda)
 PGLSi <- pgls.iter(models=est.mods, phylo=phyl, df=data, l=lambda, k='ML', d='ML')
 @
 
-\clearpage
-\section{Fixed iteration run statistics}
-We should briefly inspect how this fixed iteration run performed and how many sub-datasets we need to investigate. By default \Rpackage{mmodely} uses 'rwGsm.' This abbreviation stands for 'raw \emph{Genus species} sums.' It represents a sum of the (concatenated) raw character values of all species constituting the underlying dataset (which has all rows with any missing data removed) for a particular combination of model predictor variables. While this default is preferred, the number of species 'n' or number of model variables 'q' can also be used. 
-<<fixiterstats>>=
-pgls.iter.stats(PGLSi) # check run, especially to see how few sub-datasets exist
-@
 
 \clearpage
 \section{Tree Transformation Averaging and Re-iteration}
@@ -129,7 +123,6 @@ After running PGLS on a test-subset of predictor-variable combinations using max
 <<ttavg>>=
 tt.avgs <- apply(PGLSi$params, 2, mean, na.rm=TRUE) # tree transformation averages
 print(tt.avgs)
-
 @
 Next we use the full set of variables and our tree transform averages. For demonstration, we sprinkle in some missing values to our dataset so as to artificially boost the number of sub-datasets. The subsequent fixed tree parameter itteration run should now generate more diverse output upon which the \Rpackage{mmodely} can demonstrate it unique model averaging and  model selection functionality.
 
@@ -145,17 +138,30 @@ PGLSi <- pgls.iter(models=all.mods, phylo=phyl, df=data, l=lambda, k=tt.avgs['k'
 
 pgls.iter.stats(PGLSi) 
 @
+
+\clearpage
+\section{Fixed iteration run statistics}
+We should briefly inspect how this fixed iteration run performed and how many sub-datasets we need to investigate. It is recommended to try \Rpackage{mmodely} using 'rwGsm.' This abbreviation stands for 'raw \emph{Genus species} sums.' It represents a sum of the (concatenated) raw character values of all species constituting the underlying dataset (which has all rows with any missing data removed) for a particular combination of model predictor variables. While this default is preferred, the number of species 'n' [default] or number of model variables 'q' can also be used. 
+<<fixiterstats>>=
+pgls.iter.stats(PGLSi) 
+@
+
 \clearpage
 \section{Model Averaging}
-Now we can estimate the predictor variable parameters by averaging over all possible fixed PGLS runs, using the AICc differences (from the lowest AICc) as weights. By default this AICw weighted average is performed per sub-dataset using 'rwGsm' as mentioned in the preceding section.
+Now we can estimate the predictor variable parameters by averaging over all possible fixed PGLS runs, using the AICc differences (from the lowest AICc) as weights. By default this AICw weighted average is performed per sub-dataset using 'rwGsm' or 'n' [default] as mentioned in the preceding section. While model averaging is not recommended under high multicolinearity, as denominators of regression coefficients change across models, it is possible to rescale these using 'standarize' \cite{Cade2015}. A slightly more conservative alternative to MA uses 'variable importance' which is equivalent to an AIC-weighted MA of binary indicators of presence or absence of covariate model inclusion \cite{Anderson2000}. 
 
 <<modavg>>=
-w.means.pds <- average.fit.models(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim, by='rwGsm')
+w.means.pds <- average.fit.models(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim, by='rwGsm', standardize=TRUE)
 #
 apply(w.means.pds, 2, mean, na.rm=T) #average of weighted means over all sub-datasets
 w.means.pds                                    # weighted means    per   sub-dataset
 @
-
+<<varimport>>=
+w.import.pds <- variable.importance(vars=pvs, fits=PGLSi$fits, optims=PGLSi$optim, by='rwGsm')
+#
+apply(w.import.pds, 2, mean, na.rm=T) #average of weighted means over all sub-datasets
+w.import.pds                                    # weighted means    per   sub-dataset
+@
 \clearpage
 \section{Model Selection}
 We can select the best model by sorting each subset (e.g. by AICc) or by using visualization methods. 
@@ -173,7 +179,7 @@ plot.pgls.iters(PGLSi)
 <<plotiter>>
 @
 \end{center}
-\caption{All possible model combinations appear as individual points above. As there is a generally negative association between AIC and the coefficient of determination, the points tend to follow a negative sloping streak to the lower right. The "best" models typically appear in the lower right of each streak. Therefore, minimizing AIC tends to also maximize the coefficient of determination, but not necessarily. This four panel plot looks at correct and adjusted versions of each model assessment measure.}{}
+\caption{All possible model combinations appear as individual points above. As there is a generally negative association between AIC and the coefficient of determination, the points tend to follow a negative sloping streak to the lower right. The "best" models typically appear in the lower right of each streak. Therefore, minimizing AIC tends to also maximize the coefficient of determination, but not necessarily. This four panel plot looks at correct and adjusted versions of each model assessment measure. All points are scaled by subdataset sample size by default if 'n' is used in grouping.}{}
 \label{plotiter:one}
 \end{figure}
 
@@ -196,7 +202,7 @@ plot.pgls.R2AIC(PGLSi$optim)
 <<R2AIC>>
 @
 \end{center}
-\caption{This is a one panel verison of the previous model selection plot. The numbered points in the lower right corner of each streak of possible models represent the best model within a sub-dataset. Since these AICc values should not strictly be compared, it is not a bad idea that all "best" models selected from each sub-dataset should get reported, such as in the form of the 'distro dots' plot below.}{}
+\caption{This is a one panel verison of the previous model selection plot. The numbered points in the lower right corner of each streak of possible models represent the best model within a sub-dataset. Since these AICc values should not strictly be compared, it is not a bad idea that all "best" models selected from each sub-dataset should get reported, such as in the form of the 'sparge' plot below.}{}
 \label{R2AIC:one}
 \end{figure}
 
@@ -205,8 +211,8 @@ plot.pgls.R2AIC(PGLSi$optim)
 Finally, the resulting model fits from the PGLS runs can be be plotted out horizontally as distributions so the influence of each ecological predictor variable can be compared.
 <<coefdists>>=
 par.old <- par(mar=c(5,8,1,4),mfrow=c(2,1))
-distro.dots.modsel(sdevs.objs, R2x=7, xlab='t value')
-distro.dots.modsel(coefs.objs, R2x=7, xlab='Estimate')
+sparge.modsel(sdevs.objs, R2x=7, xlab='t value')
+sparge.modsel(coefs.objs, R2x=7, xlab='Estimate')
 @
 \begin{figure}
 \begin{center}
@@ -214,7 +220,7 @@ distro.dots.modsel(coefs.objs, R2x=7, xlab='Estimate')
 <<coefdists>>
 @
 \end{center}
-\caption{These horizontal parameter distribution dot-plots demonstrate how the (t-values of) coefficients from models can be simultaneously plot in order to verify consistency of estimates across the various (often missing-data driven) sub-datasets. Note that mate choice, locomotion, and statural factors drive complex (here rhythmically syllabic) calling in primates.}
+\caption{These horizontal parameter distribution dot-plots demonstrate how the (t-values of) coefficients from models can be simultaneously plot in order to verify consistency of estimates across the various (often missing-data driven) sub-datasets. To visually assess potential over-fitting in each model, point sizes represent underlying sample sizes and circle thickness corresponds coefficient of determination values. Note that mate choice, locomotion, and statural factors drive complex (here rhythmically syllabic) calling in primates. }
 \label{coefdists:one}
 \end{figure}
 
@@ -241,6 +247,10 @@ distro.dots.modsel(coefs.objs, R2x=7, xlab='Estimate')
 \bibitem{Garamszegi2011}Garamszegi L.Z. (2011) ‘Information-theoretic approaches to statistical analysis in behavioral ecology: an introduction’ \bibTitle{Behavioral Ecology and Sociobiology}, 65, pp. 1–11. Available at: \url{https://doi.org/10.1007/s00265-010-1028-7}.
 
 \bibitem{Rowe2017}Rowe, N. and Meyers, M. (2017) \bibTitle{All the World’s Primates}. Charlestown, RI: Pogonias Press.
+
+\bibitem{Anderson2000} Burnham, P.B. and Anderson, D.R. (2000) \bibTitle{‘Model Selection and Inference: A Practical Information-Theoretic Approach’}
+
+\bibitem{Cade2015} Cade, B.S. (2015) ‘Model averaging and muddled multimodel inferences’ \bibTitle{Ecology}, 96(9), pp. 2370–2382. Available at: \url{https://doi.org/abs/10.1890/14-1639.1}.
 
 \bibitem{Feuntes1998}Feuntes, A. (1998) ‘Re-evaluating primate monogamy’  \bibTitle{American Anthropology}, 100(4) pp. 890-907.
 

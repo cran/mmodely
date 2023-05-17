@@ -5,7 +5,7 @@
 Enumerate all combinations of predictor variables in a multivariate regression model.
 }
 \usage{
-get.model.combos(outcome.var, predictor.vars, min.q=2)
+get.model.combos(outcome.var, predictor.vars, min.q=1)
 }
 \arguments{
 \item{predictor.vars}{predictor variables names (a vector of character strings)}

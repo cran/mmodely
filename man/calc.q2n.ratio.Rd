@@ -1,17 +1,17 @@
-\name{weight.AIC}
-\alias{weight.AIC}
-\title{Get AIC weights }
+\name{calc.q2n.ratio}
+\alias{calc.q2n.ratio}
+\title{Calculate the ratio of fit predictor variables to sample size}
 \description{
-An implementation of AIC weighting that first calulates the difference in AIC values (here an AICc) by subtracting all values from the lowest AIC value. Second, the changes are expoentiated divided by a sum of the same and exponentiated yet again.
+The one in ten rule of thumb for model fitting suggest at least 10 fold as many data as parametes fit. This function allows for easily calculating that ratio on model selected PGLS fits.
 }
 \usage{
-weight.AIC(AIC)
+calc.q2n.ratio(coefs)
 }
 \arguments{
-\item{AIC}{a vector of [corrected] AIC values [AICc]}
+\item{coefs}{a list of coefficients extracted from fit PGLS models}
 }
 \value{
-a vector of AIC based weights
+the ratio of q to n (on average for all extracted fit models) 
 }
 \examples{
 
@@ -29,6 +29,8 @@ mods <- get.model.combos(predictor.vars=pvs, outcome.var='OC', min.q=2)
 
 PGLSi <- pgls.iter(models=mods, phylo=phyl, df=data, k=1,l=1,d=1) 
 
-AICc.w <- weight.AIC(AIC=PGLSi$optim$AICc)
+coefs.objs <- get.pgls.coefs(PGLSi$fits, est='Estimate')
+
+calc.q2n.ratio(coefs.objs)
 
 }

@@ -9,7 +9,7 @@ count.mod.vars <- function(model) if(inherits(model,'formula')) length(get.mod.v
 
 
 ## create a list of all possible models based on combinations of all candiate variables
-get.model.combos <- function(outcome.var, predictor.vars, min.q=2){
+get.model.combos <- function(outcome.var, predictor.vars, min.q=1){
   all.models <- paste(predictor.vars, collapse="+")
   for(mi in (length(predictor.vars)-1):min.q){ 
     new.combos <-  t(combn(predictor.vars,  m=mi))
